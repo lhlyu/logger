@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const version = "v1.0.3"
+
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
 
@@ -45,6 +47,7 @@ type Logger struct {
 }
 
 var _logger *Logger
+var _color = 0
 
 func init(){
 	_logger = NewLogger(LV_DEBUG,"")
@@ -78,12 +81,17 @@ func SetLogger(logger *Logger){
 	}
 }
 
+func SetColor(open int){
+	_color = open
+
+}
+
 func (this *Logger) print(lv int,sign string,v ...interface{}){
 	if lv < this.Lv{
 		return
 	}
 	format := lv_color[lv]
-	if this.mod != 0{
+	if this.mod != 0 || _color != 0{
 		format = "%s"
 	}
 	this.lg.SetPrefix(fmt.Sprintf(format,sign))
