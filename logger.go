@@ -114,20 +114,20 @@ func Fatal(v ...interface{}){
 }
 
 func Debugf(format string,v ...interface{}){
-	Debug(fmt.Sprintf(format,v))
+	Debug(fmt.Sprintf(format,v...))
 }
 func Funcf(format string,v ...interface{}){
-	Func(fmt.Sprintf(format,v))
+	Func(fmt.Sprintf(format,v...))
 }
 func Infof(format string,v ...interface{}){
-	Info(fmt.Sprintf(format,v))
+	Info(fmt.Sprintf(format,v...))
 }
 func Configf(format string,v ...interface{}){
-	Config(fmt.Sprintf(format,v))
+	Config(fmt.Sprintf(format,v...))
 }
 func Errorf(format string,v ...interface{}){
-	Error(fmt.Sprintf(format,v))
+	Error(fmt.Sprintf(format,v...))
 }
 func Fatalf(format string,v ...interface{}){
-	Fatal(fmt.Sprintf(format,v))
+	Fatal(fmt.Sprintf(format,v...))
 }
