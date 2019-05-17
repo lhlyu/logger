@@ -25,7 +25,7 @@ func main() {
 	logger.Fatal("this is fatal")
 }
 ```
-!["效果1"]("https://raw.githubusercontent.com/lhlyu/logger/master/img/console1.jpg")
+!["效果1"](https://raw.githubusercontent.com/lhlyu/logger/master/img/console1.jpg)
 
 - 设置低等级日志过滤/日志输出到文本
 
@@ -42,4 +42,4 @@ func main() {
 	logger.Fatal("this is fatal")
 }
 ```
-!["效果1"]("https://raw.githubusercontent.com/lhlyu/logger/master/img/console2.jpg")
+!["效果1"](https://raw.githubusercontent.com/lhlyu/logger/master/img/console2.jpg)
