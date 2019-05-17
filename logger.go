@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime"
 	"time"
 )
 
-const version = "v1.0.3"
+const version = "v1.0.4"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
@@ -96,6 +97,11 @@ func (this *Logger) print(lv int,sign string,v ...interface{}){
 	}
 	this.lg.SetPrefix(fmt.Sprintf(format,sign))
 	s := LOG_SIGN + fmt.Sprint(v...)
+	if lv >= LV_ERROR{
+		// 打印错误文件和所在行
+		_,file,line,_ := runtime.Caller(2)
+		s = fmt.Sprintf("[%s:%d] %s",file,line,s)
+	}
 	this.lg.Println(s)
 	if lv == LV_FATAL{
 		os.Exit(1)
