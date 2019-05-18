@@ -53,7 +53,7 @@ var _color = 0
 
 func init(){
 	_logger = NewLogger(LV_DEBUG,"")
-	Infof("logger version = ",version)
+	Infof("logger version = %s",version)
 }
 
 func NewLogger(lv int,fldir string) *Logger{
