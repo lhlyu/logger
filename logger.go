@@ -6,10 +6,11 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 	"time"
 )
 
-const version = "v1.0.4"
+const version = "v1.0.5"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
@@ -24,12 +25,12 @@ const (
 )
 
 const (
-	SIGN_DEBUG  = "[debug   ] "
-	SIGN_FUNC   = "[func    ] "
-	SIGN_INFO   = "[info    ] "
-	SIGN_CONFIG = "[config  ] "
-	SIGN_ERROR  = "[error   ] "
-	SIGN_FATAL  = "[fatal   ] "
+	SIGN_DEBUG  = "[debug ] "
+	SIGN_FUNC   = "[func  ] "
+	SIGN_INFO   = "[info  ] "
+	SIGN_CONFIG = "[config] "
+	SIGN_ERROR  = "[error ] "
+	SIGN_FATAL  = "[fatal ] "
 )
 
 var lv_color = map[int]string{
@@ -52,6 +53,7 @@ var _color = 0
 
 func init(){
 	_logger = NewLogger(LV_DEBUG,"")
+	Infof("logger version = ",version)
 }
 
 func NewLogger(lv int,fldir string) *Logger{
@@ -84,7 +86,6 @@ func SetLogger(logger *Logger){
 
 func SetColor(open int){
 	_color = open
-
 }
 
 func (this *Logger) print(lv int,sign string,v ...interface{}){
@@ -99,8 +100,18 @@ func (this *Logger) print(lv int,sign string,v ...interface{}){
 	s := LOG_SIGN + fmt.Sprint(v...)
 	if lv >= LV_ERROR{
 		// 打印错误文件和所在行
-		_,file,line,_ := runtime.Caller(2)
-		s = fmt.Sprintf("[%s:%d] %s",file,line,s)
+		index := 2
+		for {
+			_,file,line,ok := runtime.Caller(index)
+			if !ok{
+				break
+			}
+			if strings.LastIndex(file,"logger.go") == -1{
+				s = fmt.Sprintf("[%s:%d] %s",file,line,s)
+				break
+			}
+			index += 1
+		}
 	}
 	this.lg.Println(s)
 	if lv == LV_FATAL{
