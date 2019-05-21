@@ -6,13 +6,15 @@
 > go get github.com/lhlyu/logger
 
 ### 日志等级
+
 ```
-DEBUG   debug信息  0
-FUNC    方法信息   1 
-INFO    普通信息   2
-CONFIG  配置信息   3
-ERROR   错误信息   4
-FATAL   致命信息   5
+SIGN    标记信息  -1   会打印文件和行号
+DEBUG   debug信息  0   不会打印文件和行号    默认等级
+FUNC    方法信息   1   不会打印文件和行号
+INFO    普通信息   2   不会打印文件和行号
+CONFIG  配置信息   3   不会打印文件和行号
+ERROR   错误信息   4   会打印文件和行号  
+FATAL   致命信息   5   会打印文件和行号并且退出程序
 ```
 
 ### 使用 
@@ -47,6 +49,18 @@ func main() {
 }
 ```
 !["效果1"](https://raw.githubusercontent.com/lhlyu/logger/master/img/console2.jpg)
+
+### 其他方法
+```
+logger.XXXX(v ...interface{})                     // 打印
+logger.XXXXf(format string,v ...interface{})      // 格式化打印
+logger.NewLogger(lv int, fldir string) *Logger    // New
+logger.SetLogger(logger *Logger)                  // 设置自己的日志管理器
+logger.SetColor(open int)                         // 设置颜色打印，默认(open=0)是开启
+logger.SetLevel(level int)                        // 设置日志等级，默认是 0 
+logger.SetAbs(abs int)                            // 设置打印文件位置是否使用绝对路径，默认0，不使用 
+```
+
 
 ### 注意
 
