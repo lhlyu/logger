@@ -10,37 +10,37 @@ import (
 	"time"
 )
 
-const version = "v1.0.7"
+const version = "v1.0.8"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
 
 const (
-	LV_SIGN  = -1
-	LV_DEBUG = iota - 1
+	LV_DEBUG = iota
 	LV_FUNC
 	LV_INFO
 	LV_CONFIG
+	LV_SIGN
 	LV_ERROR
 	LV_FATAL
 )
 
 const (
-	SIGN        = "[sign  ] "
 	SIGN_DEBUG  = "[debug ] "
 	SIGN_FUNC   = "[func  ] "
 	SIGN_INFO   = "[info  ] "
 	SIGN_CONFIG = "[config] "
+	SIGN        = "[sign  ] "
 	SIGN_ERROR  = "[error ] "
 	SIGN_FATAL  = "[fatal ] "
 )
 
 var lv_color = map[int]string{
-	LV_SIGN:   "%s",
 	LV_DEBUG:  "%s",
 	LV_FUNC:   "\x1B[33m%s\x1b[0m",
 	LV_INFO:   "\x1B[34m%s\x1b[0m",
 	LV_CONFIG: "\x1b[32m%s\x1b[0m",
+	LV_SIGN:   "%s",
 	LV_ERROR:  "\x1b[95m%s\x1b[0m",
 	LV_FATAL:  "\x1b[91m%s\x1b[0m",
 }
@@ -142,9 +142,6 @@ func printLine(s string) string{
 	return s
 }
 
-func Sign(v ...interface{}){
-	_logger.print(LV_SIGN, SIGN,v...)
-}
 func Debug(v ...interface{}) {
 	_logger.print(LV_DEBUG, SIGN_DEBUG, v...)
 }
@@ -157,6 +154,9 @@ func Info(v ...interface{}) {
 func Config(v ...interface{}) {
 	_logger.print(LV_CONFIG, SIGN_CONFIG, v...)
 }
+func Sign(v ...interface{}){
+	_logger.print(LV_SIGN, SIGN,v...)
+}
 func Error(v ...interface{}) {
 	_logger.print(LV_ERROR, SIGN_ERROR, v...)
 }
@@ -164,9 +164,7 @@ func Fatal(v ...interface{}) {
 	_logger.print(LV_FATAL, SIGN_FATAL, v...)
 }
 
-func Signf(format string, v ...interface{}) {
-	Sign(fmt.Sprintf(format, v...))
-}
+
 func Debugf(format string, v ...interface{}) {
 	Debug(fmt.Sprintf(format, v...))
 }
@@ -178,6 +176,9 @@ func Infof(format string, v ...interface{}) {
 }
 func Configf(format string, v ...interface{}) {
 	Config(fmt.Sprintf(format, v...))
+}
+func Signf(format string, v ...interface{}) {
+	Sign(fmt.Sprintf(format, v...))
 }
 func Errorf(format string, v ...interface{}) {
 	Error(fmt.Sprintf(format, v...))
