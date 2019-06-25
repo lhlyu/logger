@@ -65,7 +65,7 @@ func (this *Logger) print(lv int, sign string, v ...interface{}) {
 		return
 	}
 	colorCode := lv_color[lv]
-	prefix := GetColorizeFormat(ColorFormatBoldX, colorCode, sign)
+	prefix := GetColorizeFormat(ColorFormatBold, colorCode, sign)
 	if this.Mod != 0 || this.Color != 0 {
 		prefix = sign
 	}

@@ -24,7 +24,6 @@ white: 37
 const (
 	ColorFormat      = "\x1b[%dm%s\x1b[0m"   // 普通格式
 	ColorFormatBold  = "\x1b[%d;1m%s\x1b[0m" // 加粗格式
-	ColorFormatBoldX = "\x1b[%d;2m%s\x1b[0m" // 超粗格式
 )
 
 // 字体色
