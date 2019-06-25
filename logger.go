@@ -6,11 +6,10 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"strings"
 	"sync"
 )
 
-const version = "v1.1.0"
+const version = "v1.1.1"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
@@ -85,20 +84,14 @@ func (this *Logger) print(lv int, sign string, v ...interface{}) {
 
 // 打印文件和所在行
 func printLine(s string) string {
-	index := 2
-	for {
-		_, file, line, ok := runtime.Caller(index)
-		if !ok {
-			break
-		}
-		if _logger.Abs == 0 {
-			file = path.Base(file)
-		}
-		if strings.LastIndex(file, "logger.go") == -1 {
-			s = fmt.Sprintf("[%s:%d] %s", file, line, s)
-			break
-		}
-		index += 1
+	index := 3
+	_, file, line, ok := runtime.Caller(index)
+	if !ok {
+		return s
 	}
+	if _logger.Abs == 0 {
+		file = path.Base(file)
+	}
+	s = fmt.Sprintf("[%s:%d] %s", file, line, s)
 	return s
 }
