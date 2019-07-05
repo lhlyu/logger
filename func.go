@@ -60,9 +60,9 @@ func SetAbs(abs int) {
 	_logger.mu.Unlock()
 }
 
-func Print(lv int,v ...interface{}){
-	sign,ok := lvSignMap[lv]
-	if !ok{
+func Print(lv int, v ...interface{}) {
+	sign, ok := lvSignMap[lv]
+	if !ok {
 		sign = SIGN_DEBUG
 	}
 	_logger.print(lv, sign, v...)
@@ -86,8 +86,8 @@ func Fatal(v ...interface{}) {
 	Print(LV_FATAL, v...)
 }
 
-func Printf(lv int,format string,v ...interface{}){
-	Print(lv,fmt.Sprintf(format, v...))
+func Printf(lv int, format string, v ...interface{}) {
+	Print(lv, fmt.Sprintf(format, v...))
 }
 func Debugf(format string, v ...interface{}) {
 	Debug(fmt.Sprintf(format, v...))
@@ -99,20 +99,21 @@ func Configf(format string, v ...interface{}) {
 	Config(fmt.Sprintf(format, v...))
 }
 func Signf(format string, v ...interface{}) {
-	Sign(fmt.Sprintf(format, v...))
+	Print(LV_SIGN, fmt.Sprintf(format, v...))
 }
 func Errorf(format string, v ...interface{}) {
-	Error(fmt.Sprintf(format, v...))
+	Print(LV_ERROR, fmt.Sprintf(format, v...))
 }
 func Fatalf(format string, v ...interface{}) {
-	Fatal(fmt.Sprintf(format, v...))
+	Print(LV_FATAL, fmt.Sprintf(format, v...))
 }
 
-func Json(lv int,v interface{}){
+func Json(lv int, v interface{}) {
 	s, _ := prettyjson.Marshal(v)
-	Print(lv,"\n"+string(s))
+	Print(lv, "\n"+string(s))
 }
 
-func JsonSign(v interface{}){
-	Json(LV_SIGN,v)
+func JsonSign(v interface{}) {
+	s, _ := prettyjson.Marshal(v)
+	Print(LV_SIGN, "\n"+string(s))
 }

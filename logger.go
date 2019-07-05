@@ -33,12 +33,12 @@ const (
 )
 
 var lvSignMap = map[int]string{
-	LV_DEBUG:SIGN_DEBUG,
-	LV_INFO:SIGN_INFO,
-	LV_CONFIG:SIGN_CONFIG,
-	LV_SIGN:SIGN,
-	LV_ERROR:SIGN_ERROR,
-	LV_FATAL:SIGN_FATAL,
+	LV_DEBUG:  SIGN_DEBUG,
+	LV_INFO:   SIGN_INFO,
+	LV_CONFIG: SIGN_CONFIG,
+	LV_SIGN:   SIGN,
+	LV_ERROR:  SIGN_ERROR,
+	LV_FATAL:  SIGN_FATAL,
 }
 
 type Logger struct {
@@ -93,7 +93,7 @@ func (this *Logger) print(lv int, sign string, v ...interface{}) {
 
 // 打印文件和所在行
 func printLine(s string) string {
-	index := 3
+	index := 4
 	_, file, line, ok := runtime.Caller(index)
 	if !ok {
 		return s
