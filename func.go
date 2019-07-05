@@ -1,8 +1,7 @@
 package logger
 
 import (
-	"fmt"
-	prettyjson "github.com/hokaccha/go-prettyjson"
+	"github.com/hokaccha/go-prettyjson"
 	"log"
 	"os"
 	"path"
@@ -29,6 +28,12 @@ func NewLogger(lv int, fldir string) *Logger {
 	logger.Mod = mod
 	logger.lg = lg
 	logger.Color = check()
+	logger.pt = &prettyjson.Formatter{
+		StringMaxLength: 0,
+		DisabledColor:   false,
+		Indent:          2,
+		Newline:         "\n",
+	}
 	return logger
 }
 
@@ -61,59 +66,55 @@ func SetAbs(abs int) {
 }
 
 func Print(lv int, v ...interface{}) {
-	sign, ok := lvSignMap[lv]
-	if !ok {
-		sign = SIGN_DEBUG
-	}
-	_logger.print(lv, sign, v...)
+	printHandler(lv, "", v...)
 }
 func Debug(v ...interface{}) {
-	Print(LV_DEBUG, v...)
+	printHandler(LV_DEBUG, "", v...)
 }
 func Info(v ...interface{}) {
-	Print(LV_INFO, v...)
+	printHandler(LV_INFO, "", v...)
 }
 func Config(v ...interface{}) {
-	Print(LV_CONFIG, v...)
+	printHandler(LV_CONFIG, "", v...)
 }
 func Sign(v ...interface{}) {
-	Print(LV_SIGN, v...)
+	printHandler(LV_SIGN, "", v...)
 }
 func Error(v ...interface{}) {
-	Print(LV_ERROR, v...)
+	printHandler(LV_ERROR, "", v...)
 }
 func Fatal(v ...interface{}) {
-	Print(LV_FATAL, v...)
+	printHandler(LV_FATAL, "", v...)
 }
 
 func Printf(lv int, format string, v ...interface{}) {
-	Print(lv, fmt.Sprintf(format, v...))
+	printHandler(lv, format, v...)
 }
 func Debugf(format string, v ...interface{}) {
-	Debug(fmt.Sprintf(format, v...))
+	printHandler(LV_DEBUG, format, v...)
 }
 func Infof(format string, v ...interface{}) {
-	Info(fmt.Sprintf(format, v...))
+	printHandler(LV_INFO, format, v...)
 }
 func Configf(format string, v ...interface{}) {
-	Config(fmt.Sprintf(format, v...))
+	printHandler(LV_CONFIG, format, v...)
 }
 func Signf(format string, v ...interface{}) {
-	Print(LV_SIGN, fmt.Sprintf(format, v...))
+	printHandler(LV_SIGN, format, v...)
 }
 func Errorf(format string, v ...interface{}) {
-	Print(LV_ERROR, fmt.Sprintf(format, v...))
+	printHandler(LV_ERROR, format, v...)
 }
 func Fatalf(format string, v ...interface{}) {
-	Print(LV_FATAL, fmt.Sprintf(format, v...))
+	printHandler(LV_FATAL, format, v...)
 }
 
 func Json(lv int, v interface{}) {
-	s, _ := prettyjson.Marshal(v)
-	Print(lv, "\n"+string(s))
+	s, _ := _logger.pt.Marshal(v)
+	printHandler(lv, "", "\n"+string(s))
 }
 
 func JsonSign(v interface{}) {
-	s, _ := prettyjson.Marshal(v)
-	Print(LV_SIGN, "\n"+string(s))
+	s, _ := _logger.pt.Marshal(v)
+	printHandler(LV_SIGN, "", "\n"+string(s))
 }

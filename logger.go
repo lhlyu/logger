@@ -2,14 +2,16 @@ package logger
 
 import (
 	"fmt"
+	"github.com/hokaccha/go-prettyjson"
 	"log"
 	"os"
 	"path"
-	"runtime"
+	"runtime/debug"
+	"strings"
 	"sync"
 )
 
-const version = "v1.1.3"
+const version = "v1.2.0"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
@@ -43,11 +45,12 @@ var lvSignMap = map[int]string{
 
 type Logger struct {
 	mu    sync.Mutex
-	Lv    int         // 日志等级
-	lg    *log.Logger // 官方日志记录器
-	Mod   int         // 0 - 控制台  1 - 文本
-	Color int         // 0 - 颜色打印 1 - 去掉颜色
-	Abs   int         // 0 - 相对路径 1 - 绝对路径
+	Lv    int                   // 日志等级
+	lg    *log.Logger           // 官方日志记录器
+	Mod   int                   // 0 - 控制台   1 - 文本
+	Color int                   // 0 - 颜色打印 1 - 去掉颜色
+	Abs   int                   // 0 - 相对路径 1 - 绝对路径
+	pt    *prettyjson.Formatter // 格式化工具
 }
 
 var _logger *Logger
@@ -68,7 +71,7 @@ func init() {
 }
 
 // 打印方法
-func (this *Logger) print(lv int, sign string, v ...interface{}) {
+func (this *Logger) print(lv int, sign string, s string) {
 	if lv < this.Lv {
 		return
 	}
@@ -78,29 +81,40 @@ func (this *Logger) print(lv int, sign string, v ...interface{}) {
 		prefix = sign
 	}
 	this.lg.SetPrefix(prefix)
-	s := LOG_SIGN + fmt.Sprint(v...)
-	if lv == LV_SIGN {
-		s = printLine(s)
-	}
-	if lv >= LV_ERROR {
-		s = printLine(s)
-	}
 	this.lg.Println(s)
 	if lv == LV_FATAL {
 		os.Exit(1)
 	}
 }
 
-// 打印文件和所在行
-func printLine(s string) string {
-	index := 4
-	_, file, line, ok := runtime.Caller(index)
+func printHandler(lv int, format string, v ...interface{}) {
+	var line string // 方法和行号
+	var lineFormat = " %s %s"
+	var params []interface{}
+	if lv >= LV_SIGN {
+		lineFormat = "[ %s ] %s %s"
+		stacks := string(debug.Stack())
+		stackArr := strings.Split(stacks, "\n")
+		line = strings.TrimSpace(stackArr[8])
+		lineArr := strings.Split(line, " ")
+		line = lineArr[0]
+		if _logger.Abs == 0 {
+			line = path.Base(line)
+		}
+		params = append(params, line)
+	}
+	var s string
+	if format == "" {
+		s = fmt.Sprint(v...)
+	} else {
+		s = fmt.Sprintf(format, v...)
+	}
+	params = append(params, LOG_SIGN)
+	params = append(params, s)
+	s = fmt.Sprintf(lineFormat, params...)
+	sign, ok := lvSignMap[lv]
 	if !ok {
-		return s
+		sign = SIGN_DEBUG
 	}
-	if _logger.Abs == 0 {
-		file = path.Base(file)
-	}
-	s = fmt.Sprintf("[%s:%d] %s", file, line, s)
-	return s
+	_logger.print(lv, sign, s)
 }

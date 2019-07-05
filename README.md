@@ -3,7 +3,7 @@
 
 ### 当前版本
 
-- v1.1.3
+- v1.2.0
 
 ### 安装
 
@@ -26,36 +26,42 @@ FATAL   致命信息   5   会打印文件和行号并且退出程序
 
 ```go
 import (
-	"github.com/lhlyu/logger"
+	"githu.com/lhlyu/logger"
 )
 
 type Demo struct {
-	Name string
-	Age  int
+	Name  string
+	Age   int
 	Money float64
 }
 
-func main(){
+func main() {
+	Run()
+}
+
+func Run(){
 	v := map[string]interface{}{
-		"str": "hah",
-		"num": 200,
-		"bool": false,
-		"null": nil,
+		"str":   "hah",
+		"num":   200,
+		"bool":  false,
+		"null":  nil,
 		"array": []string{"aa", "bb", "cc"},
 		"map": map[string]interface{}{
 			"AA": "BB",
 		},
 	}
 	// 自定义等级，格式化打印一个map
-	logger.Json(logger.LV_DEBUG,v)
-	demo := Demo{"tom",12,900.10}
+	logger.Json(logger.LV_DEBUG, v)
+	demo := Demo{"tom", 12, 900.12}
 	// 标记信息，格式化打印一个struct
 	logger.JsonSign(demo)
-	logger.Infof("格式化打印 %s","infof")
+	logger.Infof("格式化打印 %s", "infof")
 	logger.Debug("调试信息")
 	logger.Info("普通信息")
 	logger.Config("配置信息")
 	logger.Sign("标记信息")
+	// 打印绝对路径
+	logger.SetAbs(1)
 	logger.Error("错误信息")
 	logger.Fatal("致命信息")
 }
