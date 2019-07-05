@@ -3,7 +3,7 @@
 
 ### 当前版本
 
-- v1.1.2
+- v1.1.3
 
 ### 安装
 
@@ -89,6 +89,10 @@ logger.SetColor(1)  // 关闭色彩
 logger.SetColor(0)  // 开启色彩，这是默认设置
 ```
 
+- 如果go mod下载不了依赖 golang.org/x/sys，请在go.mod文件下加上这句
+```
+replace golang.org/x/sys => github.com/golang/sys latest
+```
 
 ### 参考
 

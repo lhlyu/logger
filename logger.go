@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-const version = "v1.1.2"
+const version = "v1.1.3"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "

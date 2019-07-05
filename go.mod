@@ -1,4 +1,4 @@
-module github.com/lhlyu/logger
+module logger
 
 require (
 	github.com/fatih/color v1.7.0 // indirect
