@@ -60,7 +60,7 @@ func main(){
 	logger.Fatal("致命信息")
 }
 ```
-!["效果1"](./img/console1.jpg)
+!["效果1"](./img/console.jpg)
 
 ### 其他方法
 ```
