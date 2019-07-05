@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-const version = "v1.1.1"
+const version = "v1.1.2"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
@@ -31,6 +31,15 @@ const (
 	SIGN_ERROR  = "[error ] "
 	SIGN_FATAL  = "[fatal ] "
 )
+
+var lvSignMap = map[int]string{
+	LV_DEBUG:SIGN_DEBUG,
+	LV_INFO:SIGN_INFO,
+	LV_CONFIG:SIGN_CONFIG,
+	LV_SIGN:SIGN,
+	LV_ERROR:SIGN_ERROR,
+	LV_FATAL:SIGN_FATAL,
+}
 
 type Logger struct {
 	mu    sync.Mutex

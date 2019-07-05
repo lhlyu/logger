@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	prettyjson "github.com/hokaccha/go-prettyjson"
 	"log"
 	"os"
 	"path"
@@ -27,6 +28,7 @@ func NewLogger(lv int, fldir string) *Logger {
 	logger.Lv = lv
 	logger.Mod = mod
 	logger.lg = lg
+	logger.Color = check()
 	return logger
 }
 
@@ -58,25 +60,35 @@ func SetAbs(abs int) {
 	_logger.mu.Unlock()
 }
 
+func Print(lv int,v ...interface{}){
+	sign,ok := lvSignMap[lv]
+	if !ok{
+		sign = SIGN_DEBUG
+	}
+	_logger.print(lv, sign, v...)
+}
 func Debug(v ...interface{}) {
-	_logger.print(LV_DEBUG, SIGN_DEBUG, v...)
+	Print(LV_DEBUG, v...)
 }
 func Info(v ...interface{}) {
-	_logger.print(LV_INFO, SIGN_INFO, v...)
+	Print(LV_INFO, v...)
 }
 func Config(v ...interface{}) {
-	_logger.print(LV_CONFIG, SIGN_CONFIG, v...)
+	Print(LV_CONFIG, v...)
 }
 func Sign(v ...interface{}) {
-	_logger.print(LV_SIGN, SIGN, v...)
+	Print(LV_SIGN, v...)
 }
 func Error(v ...interface{}) {
-	_logger.print(LV_ERROR, SIGN_ERROR, v...)
+	Print(LV_ERROR, v...)
 }
 func Fatal(v ...interface{}) {
-	_logger.print(LV_FATAL, SIGN_FATAL, v...)
+	Print(LV_FATAL, v...)
 }
 
+func Printf(lv int,format string,v ...interface{}){
+	Print(lv,fmt.Sprintf(format, v...))
+}
 func Debugf(format string, v ...interface{}) {
 	Debug(fmt.Sprintf(format, v...))
 }
@@ -94,4 +106,13 @@ func Errorf(format string, v ...interface{}) {
 }
 func Fatalf(format string, v ...interface{}) {
 	Fatal(fmt.Sprintf(format, v...))
+}
+
+func Json(lv int,v interface{}){
+	s, _ := prettyjson.Marshal(v)
+	Print(lv,"\n"+string(s))
+}
+
+func JsonSign(v interface{}){
+	Json(LV_SIGN,v)
 }
