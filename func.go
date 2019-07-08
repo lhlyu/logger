@@ -86,6 +86,9 @@ func Error(v ...interface{}) {
 func Fatal(v ...interface{}) {
 	printHandler(LV_FATAL, "", v...)
 }
+func Prompt(v ...interface{}) {
+	printHandler(lv_prompt, "", v...)
+}
 
 func Printf(lv int, format string, v ...interface{}) {
 	printHandler(lv, format, v...)
@@ -107,6 +110,9 @@ func Errorf(format string, v ...interface{}) {
 }
 func Fatalf(format string, v ...interface{}) {
 	printHandler(LV_FATAL, format, v...)
+}
+func Promptf(format string, v ...interface{}) {
+	printHandler(lv_prompt, format, v...)
 }
 
 func Json(lv int, v interface{}) {

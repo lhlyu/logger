@@ -11,7 +11,7 @@ import (
 	"sync"
 )
 
-const version = "v1.2.0"
+const version = "v1.2.1"
 
 const LOG_PREFIX = "LOGGER "
 const LOG_SIGN = ">>> "
@@ -23,6 +23,7 @@ const (
 	LV_SIGN
 	LV_ERROR
 	LV_FATAL
+	lv_prompt
 )
 
 const (
@@ -32,6 +33,7 @@ const (
 	SIGN        = "[sign  ] "
 	SIGN_ERROR  = "[error ] "
 	SIGN_FATAL  = "[fatal ] "
+	sign_prompt = ""
 )
 
 var lvSignMap = map[int]string{
@@ -41,6 +43,7 @@ var lvSignMap = map[int]string{
 	LV_SIGN:   SIGN,
 	LV_ERROR:  SIGN_ERROR,
 	LV_FATAL:  SIGN_FATAL,
+	lv_prompt:  sign_prompt,
 }
 
 type Logger struct {
@@ -67,6 +70,7 @@ func init() {
 		LV_SIGN:   Yellow,
 		LV_ERROR:  Magenta,
 		LV_FATAL:  Red,
+		lv_prompt: Black,
 	}
 }
 
@@ -91,7 +95,7 @@ func printHandler(lv int, format string, v ...interface{}) {
 	var line string // 方法和行号
 	var lineFormat = " %s %s"
 	var params []interface{}
-	if lv >= LV_SIGN {
+	if lv >= LV_SIGN && lv < lv_prompt{
 		lineFormat = "[ %s ] %s %s"
 		stacks := string(debug.Stack())
 		stackArr := strings.Split(stacks, "\n")

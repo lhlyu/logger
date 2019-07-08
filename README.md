@@ -3,7 +3,7 @@
 
 ### 当前版本
 
-- v1.2.0
+- v1.2.1
 
 ### 安装
 
@@ -72,6 +72,7 @@ func Run(){
 ```
 logger.XXXX(v ...interface{})                         // 打印
 logger.XXXXf(format string,v ...interface{})          // 格式化打印
+logger.Prompt(v ...interface{})                       // 提示信息
 logger.Print(lv int,v ...interface{})                 // 自定义等级
 logger.Printf(lv int,format string,v ...interface{})  // 自定义等级格式化
 logger.Json(lv int,v interface{})                     // 自定义等级格式化打印对象
