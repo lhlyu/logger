@@ -70,7 +70,7 @@ func printJson(level int, v interface{}) {
 		return
 	}
 	md := getLevelMetadata(level)
-	_ylog.Printer.Marshal(pio.JSONIndent)
+	_ylog.Printer.WithMarshalers(pio.Text,pio.JSONIndent)
 	pf := prefix(md)
 	if _ylog.Location != 0 {
 		fp, fn, line := getCaller()
@@ -89,7 +89,7 @@ func printJson(level int, v interface{}) {
 }
 
 func printNormal(v ...interface{}) {
-	_ylog.Printer.Marshal(pio.JSON)
+	_ylog.Printer.WithMarshalers(pio.Text,pio.JSON)
 	s := fmt.Sprint(v...)
 	if _ylog.ColorMod && _ylog.Printer.IsTerminal {
 		s = CyanBlod(s)
