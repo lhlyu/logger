@@ -42,7 +42,7 @@ func TestLog(t *testing.T) {
 	logger.AddBefore(func(ctx *logger.Ctx) {
 		fmt.Println("this is third before handler")
 	})
-	// 添加后置处理器,日志打印处理
+	// 添加后置处理器,日志打印后处理
 	logger.AddAfter(func(ctx *logger.Ctx) {
 		if ctx.Err != nil {
 			fmt.Println(ctx.Err.Error())
