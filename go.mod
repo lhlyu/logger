@@ -1,9 +1,9 @@
 module github.com/lhlyu/logger
 
+go 1.12
+
 require (
-	github.com/fatih/color v1.7.0 // indirect
-	github.com/hokaccha/go-prettyjson v0.0.0-20180920040306-f579f869bbfe
-	github.com/kataras/pio v0.0.0-20190103105442-ea782b38602d
-	github.com/mattn/go-colorable v0.1.2 // indirect
-	github.com/mattn/go-isatty v0.0.8
+	github.com/kataras/pio v0.0.2
+	golang.org/x/sys v0.0.0-20200103143344-a1369afcdac7 // indirect
+	gopkg.in/yaml.v2 v2.2.7
 )
