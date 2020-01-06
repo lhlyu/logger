@@ -2,255 +2,295 @@ package logger
 
 import (
 	"fmt"
+	_ "github.com/kataras/pio/terminal"
+	"sync"
 )
 
 const (
-	ColorFormat          = "\x1b[%dm%s\x1b[0m"   // 普通格式
-	ColorFormatBold      = "\x1b[%d;1m%s\x1b[0m" // 加粗格式
-	ColorFormatUnderline = "\x1b[%d;4m%s\x1b[0m" // 下划线格式
+	normal      = "%s"                  // 普通格式
+	colour      = "\x1b[%dm%s\x1b[0m"   // 颜色
+	highlight   = "\x1b[%d;1m%s\x1b[0m" // 高亮
+	antiDisplay = "\x1b[%d;7m%s\x1b[0m" // 反显
 )
 
-// 字体色
+type ColorVal uint32
+type ColorMode uint32
+
 const (
-	ColorBlack   = 30
-	ColorRed     = 31
-	ColorGreen   = 32
-	ColorYellow  = 33
-	ColorBlue    = 34
-	ColorMagenta = 35 // 品红
-	ColorCyan    = 36 // 青色
-	ColorWhite   = 37
+	ColorBlack ColorVal = iota + 30
+	ColorRed
+	ColorGreen
+	ColorYellow
+	ColorBlue
+	ColorMagenta
+	ColorCyan
+	ColorWhite
 )
 
-// 背景色
 const (
-	BgColorBlack   = 40
-	BgColorRed     = 41
-	BgColorGreen   = 42
-	BgColorYellow  = 43
-	BgColorBlue    = 44
-	BgColorMagenta = 45 // 品红
-	BgColorCyan    = 46 // 青色
-	BgColorWhite   = 47
+	Normal      ColorMode = iota // 普通模式
+	Colour                       // 颜色模式
+	Highlight                    // 高亮模式
+	AntiDisplay                  // 反显模式
 )
 
-//  ANSI控制码:
-//
-//  QUOTE:
-//  \x1b[0m     关闭所有属性
-//  \x1b[1m     设置高亮度
-//  \x1b[4m     下划线
-//  \x1b[5m     闪烁
-//  \x1b[7m     反显
-//  \x1b[8m     消隐
-//  \x1b[30m   --  \x1b[37m   设置前景色
-//  \x1b[40m   --  \x1b[47m   设置背景色
-//  \x1b[nA    光标上移n行
-//  \x1b[nB    光标下移n行
-//  \x1b[nC    光标右移n行
-//  \x1b[nD    光标左移n行
-//  \x1b[y;xH  设置光标位置
-//  \x1b[2J    清屏
-//  \x1b[K     清除从光标到行尾的内容
-//  \x1b[s     保存光标位置
-//  \x1b[u     恢复光标位置
-//  \x1b[?25l  隐藏光标
-//  \x1b[?25h  显示光标
-
-func colorize(colorFormat string, colorCode int, s string) string {
-	return fmt.Sprintf(colorFormat, colorCode, s)
+// 暴露一个
+var _color = Color{
+	ColorMode: Colour,
 }
 
-func colorFormat(colorCode int, s string) string {
-	return colorize(ColorFormat, colorCode, s)
+type Color struct {
+	ColorMode ColorMode
+	text      string
+	value     ColorVal
+	mx        sync.Mutex
 }
 
-func colorFormatBold(colorCode int, s string) string {
-	return colorize(ColorFormatBold, colorCode, s)
+func NewColor() *Color {
+	return &Color{
+		ColorMode: Colour,
+	}
 }
 
-func colorFormatUnderline(colorCode int, s string) string {
-	return colorize(ColorFormatUnderline, colorCode, s)
+func (c Color) brush() string {
+	format := ""
+	switch c.ColorMode {
+	case Normal:
+		format = normal
+		return fmt.Sprintf(format, c.text)
+	case Highlight:
+		format = highlight
+	case AntiDisplay:
+		format = antiDisplay
+	default:
+		format = colour
+	}
+	return fmt.Sprintf(format, c.value, c.text)
 }
 
-// @方法
-
-// 普通红色字体
-func Red(s string) string {
-	return colorFormat(ColorRed, s)
+// 0 - 普通; 1 - 颜色(默认) ; 2 - 高亮 ; 3 - 反显
+func (c *Color) SetColorMode(tp ColorMode) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	c.ColorMode = tp
 }
 
-// 普通绿色字体
-func Green(s string) string {
-	return colorFormat(ColorGreen, s)
+func (c *Color) Sprint(text string) string {
+	c.text = text
+	return c.brush()
 }
 
-// 普通黄色字体
-func Yellow(s string) string {
-	return colorFormat(ColorYellow, s)
+func (c *Color) Sprintf(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	return c.brush()
 }
 
-// 普通蓝色字体
-func Blue(s string) string {
-	return colorFormat(ColorBlue, s)
+func (c *Color) Black(text string) string {
+	_color.text = text
+	_color.value = ColorBlack
+	return _color.brush()
 }
 
-// 普通品红字体
-func Magenta(s string) string {
-	return colorFormat(ColorMagenta, s)
+func (c *Color) Blackf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorBlack
+	return _color.brush()
 }
 
-// 普通青色字体
-func Cyan(s string) string {
-	return colorFormat(ColorCyan, s)
+func (c *Color) Red(text string) string {
+	c.text = text
+	c.value = ColorRed
+	return c.brush()
 }
 
-// 红色下划线字体
-func RedLine(s string) string {
-	return colorFormatUnderline(ColorRed, s)
+func (c *Color) Redf(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorRed
+	return c.brush()
 }
 
-// 绿色下划线字体
-func GreenLine(s string) string {
-	return colorFormatUnderline(ColorGreen, s)
+func (c *Color) Green(text string) string {
+	c.text = text
+	c.value = ColorGreen
+	return c.brush()
 }
 
-// 黄色下划线字体
-func YellowLine(s string) string {
-	return colorFormatUnderline(ColorYellow, s)
+func (c *Color) Greenf(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorGreen
+	return c.brush()
 }
 
-// 蓝色下划线字体
-func BlueLine(s string) string {
-	return colorFormatUnderline(ColorBlue, s)
+func (c *Color) Yellow(text string) string {
+	c.text = text
+	c.value = ColorYellow
+	return c.brush()
 }
 
-// 品红下划线字体
-func MagentaLine(s string) string {
-	return colorFormatUnderline(ColorMagenta, s)
+func (c *Color) Yellowf(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorYellow
+	return c.brush()
 }
 
-// 青色下划线字体
-func CyanLine(s string) string {
-	return colorFormatUnderline(ColorCyan, s)
+func (c *Color) Blue(text string) string {
+	c.text = text
+	c.value = ColorBlue
+	return c.brush()
 }
 
-// 粗体红色字体
-func RedBlod(s string) string {
-	return colorFormatBold(ColorRed, s)
+func (c *Color) Bluef(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorBlue
+	return c.brush()
 }
 
-// 粗体绿色字体
-func GreenBlod(s string) string {
-	return colorFormatBold(ColorGreen, s)
+func (c *Color) Magenta(text string) string {
+	c.text = text
+	c.value = ColorMagenta
+	return c.brush()
 }
 
-// 粗体黄色字体
-func YellowBlod(s string) string {
-	return colorFormatBold(ColorYellow, s)
+func (c *Color) Magentaf(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorMagenta
+	return c.brush()
 }
 
-// 粗体蓝色字体
-func BlueBlod(s string) string {
-	return colorFormatBold(ColorBlue, s)
+func (c *Color) Cyan(text string) string {
+	c.text = text
+	c.value = ColorCyan
+	return c.brush()
 }
 
-// 粗体品红字体
-func MagentaBlod(s string) string {
-	return colorFormatBold(ColorMagenta, s)
+func (c *Color) Cyanf(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorCyan
+	return c.brush()
 }
 
-// 粗体青色字体
-func CyanBlod(s string) string {
-	return colorFormatBold(ColorCyan, s)
+func (c *Color) White(text string) string {
+	_color.text = text
+	_color.value = ColorWhite
+	return _color.brush()
 }
 
-// 普通红色背景字体
-func RedBg(s string) string {
-	return colorFormat(BgColorRed, s)
+func (c *Color) Whitef(format string, v ...interface{}) string {
+	c.text = fmt.Sprintf(format, v...)
+	c.value = ColorWhite
+	return c.brush()
 }
 
-// 普通绿色背景字体
-func GreenBg(s string) string {
-	return colorFormat(BgColorGreen, s)
+/**  暴露  **/
+// 0 - 普通; 1 - 颜色(默认) ; 2 - 高亮 ; 3 - 反显
+func SetMode(tp ColorMode) {
+	_color.mx.Lock()
+	defer _color.mx.Unlock()
+	_color.ColorMode = tp
 }
 
-// 普通黄色背景字体
-func YellowBg(s string) string {
-	return colorFormat(BgColorYellow, s)
+func Sprint(text string) string {
+	_color.text = text
+	return _color.brush()
 }
 
-// 普通蓝色背景字体
-func BlueBg(s string) string {
-	return colorFormat(BgColorBlue, s)
+func Sprintf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	return _color.brush()
 }
 
-// 普通品红背景字体
-func MagentaBg(s string) string {
-	return colorFormat(BgColorMagenta, s)
+func Black(text string) string {
+	_color.text = text
+	_color.value = ColorBlack
+	return _color.brush()
 }
 
-// 普通青色背景字体
-func CyanBg(s string) string {
-	return colorFormat(BgColorCyan, s)
+func Blackf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorBlack
+	return _color.brush()
 }
 
-// 红色下划线背景字体
-func RedLineBg(s string) string {
-	return colorFormatUnderline(BgColorRed, s)
+func Red(text string) string {
+	_color.text = text
+	_color.value = ColorRed
+	return _color.brush()
 }
 
-// 绿色下划线背景字体
-func GreenLineBg(s string) string {
-	return colorFormatUnderline(BgColorGreen, s)
+func Redf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorRed
+	return _color.brush()
 }
 
-// 黄色下划线背景字体
-func YellowLineBg(s string) string {
-	return colorFormatUnderline(BgColorYellow, s)
+func Green(text string) string {
+	_color.text = text
+	_color.value = ColorGreen
+	return _color.brush()
 }
 
-// 蓝色下划线背景字体
-func BlueLineBg(s string) string {
-	return colorFormatUnderline(BgColorBlue, s)
+func Greenf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorGreen
+	return _color.brush()
 }
 
-// 品红下划线背景字体
-func MagentaLineBg(s string) string {
-	return colorFormatUnderline(BgColorMagenta, s)
+func Yellow(text string) string {
+	_color.text = text
+	_color.value = ColorYellow
+	return _color.brush()
 }
 
-// 青色下划线背景字体
-func CyanLineBg(s string) string {
-	return colorFormatUnderline(BgColorCyan, s)
+func Yellowf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorYellow
+	return _color.brush()
 }
 
-// 粗体红色背景字体
-func RedBlodBg(s string) string {
-	return colorFormatBold(BgColorRed, s)
+func Blue(text string) string {
+	_color.text = text
+	_color.value = ColorBlue
+	return _color.brush()
 }
 
-// 粗体绿色背景字体
-func GreenBlodBg(s string) string {
-	return colorFormatBold(BgColorGreen, s)
+func Bluef(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorBlue
+	return _color.brush()
 }
 
-// 粗体黄色背景字体
-func YellowBlodBg(s string) string {
-	return colorFormatBold(BgColorYellow, s)
+func Magenta(text string) string {
+	_color.text = text
+	_color.value = ColorMagenta
+	return _color.brush()
 }
 
-// 粗体蓝色背景字体
-func BlueBlodBg(s string) string {
-	return colorFormatBold(BgColorBlue, s)
+func Magentaf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorMagenta
+	return _color.brush()
 }
 
-// 粗体品红背景字体
-func MagentaBlodBg(s string) string {
-	return colorFormatBold(BgColorMagenta, s)
+func Cyan(text string) string {
+	_color.text = text
+	_color.value = ColorCyan
+	return _color.brush()
 }
 
-// 粗体青色背景字体
-func CyanBlodBg(s string) string {
-	return colorFormatBold(BgColorCyan, s)
+func Cyanf(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorCyan
+	return _color.brush()
+}
+
+func White(text string) string {
+	_color.text = text
+	_color.value = ColorWhite
+	return _color.brush()
+}
+
+func Whitef(format string, v ...interface{}) string {
+	_color.text = fmt.Sprintf(format, v...)
+	_color.value = ColorWhite
+	return _color.brush()
 }

@@ -1,148 +1,123 @@
 package logger
 
 import (
-	"fmt"
+	"context"
 	"io"
+	"log"
 	"os"
+	"sync"
 )
 
-const version = "v2.0.0"
+const version = "v3.0.0"
 
-// 重置,回归初始
-func Reset() {
-	_ylog = new()
+const (
+	default_time_format = "2006-01-02 15:04:05 ▶ "
+)
+
+type Before func(ctx *Ctx)
+type After func(ctx *Ctx)
+
+type Logger struct {
+	Out        io.Writer // 输出流
+	Before     Before    // 前置处理器
+	After      After     // 后置处理器
+	Formatter  Formatter // 内容格式化
+	TimeFormat string    // 时间格式化
+	Level      Level     // 等级
+	Color      *Color    // 颜色控制
+	Context    context.Context
+	mx         sync.Mutex
+	lg         *log.Logger
 }
 
-// 设置输出端
-func SetWriters(writers ...io.Writer) {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	_ylog.Printer.SetOutput()
-}
-
-// 设置时间格式
-func SetTimeFormat(s string) {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	_ylog.TimeFormat = s
-}
-
-// 设置文件路径
-func SetFilePath(s string) error {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	f, err := os.OpenFile(s, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		return err
+func New() *Logger {
+	return &Logger{
+		Out:        os.Stdout,
+		Formatter:  new(textFormatter),
+		Level:      InfoLevl,
+		TimeFormat: default_time_format,
+		Color:      NewColor(),
+		lg:         log.New(os.Stdout, "", 0),
 	}
-	_ylog.Printer.SetOutput(f)
-	return nil
 }
 
-// 设置日志等级
-func SetLevel(level int) {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	_ylog.Level = level
+func (l *Logger) SetOutput(output io.Writer) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	l.Out = output
+	return l
 }
 
-// 设置是否启用颜色打印
-func SetColorMod(enable bool) {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	_ylog.ColorMod = enable
+func (l *Logger) SetLevel(lv string) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	l.Level = ParseLevel(lv)
+	return l
 }
 
-// 设置日志左右标签 默认是 [  和  ]
-func SetDelims(left, right string) {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	_ylog.Delims = [2]string{left, right}
+func (l *Logger) SetFormatter(formatter Formatter) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	l.Formatter = formatter
+	return l
 }
 
-// 设置日志打印文件和行号  0 - 不打印(默认)  1- 打印调用方法名和行号  2-打印文件路径和行号
-func SetLocation(location int) {
-	_ylog.mu.Lock()
-	defer _ylog.mu.Unlock()
-	_ylog.Location = location
+func (l *Logger) SetTimeFormat(timeFormat string) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	l.TimeFormat = timeFormat
+	return l
 }
 
-// 无前缀打印信息
-func PNone(v ...interface{}) {
-	print(LevelNone, fmt.Sprint(v...))
+func (l *Logger) WithContext(context context.Context) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	l.Context = context
+	return l
 }
 
-// 打印致命信息，会退出程序
-func PFatal(v ...interface{}) {
-	print(LevelFatal, fmt.Sprint(v...))
+func (l *Logger) SetColorMode(colorMode ColorMode) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	if l.Color == nil {
+		l.Color = &Color{}
+	}
+	l.Color.ColorMode = colorMode
+	return l
 }
 
-// 打印错误信息
-func PError(v ...interface{}) {
-	print(LevelError, fmt.Sprint(v...))
+func (l *Logger) AddBefore(befor Before) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	if l.Before == nil {
+		l.Before = befor
+		return l
+	}
+	preBefore := l.Before
+	nextBefore := befor
+	l.Before = func(ctx *Ctx) {
+		preBefore(ctx)
+		if !ctx.stop {
+			nextBefore(ctx)
+		}
+	}
+	return l
 }
 
-// 打印警告信息
-func PWarn(v ...interface{}) {
-	print(LevelWarn, fmt.Sprint(v...))
-}
-
-// 打印普通信息
-func PInfo(v ...interface{}) {
-	print(LevelInfo, fmt.Sprint(v...))
-}
-
-// 打印调试信息
-func PDebug(v ...interface{}) {
-	print(LevelDebug, fmt.Sprint(v...))
-}
-
-// 格式化打印无前缀信息
-func PNonef(format string, v ...interface{}) {
-	print(LevelNone, fmt.Sprintf(format, v...))
-}
-
-// 格式化打印致命信息，会退出程序
-func PFatalf(format string, v ...interface{}) {
-	print(LevelFatal, fmt.Sprintf(format, v...))
-}
-
-// 格式化打印错误信息
-func PErrorf(format string, v ...interface{}) {
-	print(LevelError, fmt.Sprintf(format, v...))
-}
-
-// 格式化打印警告信息
-func PWarnf(format string, v ...interface{}) {
-	print(LevelWarn, fmt.Sprintf(format, v...))
-}
-
-// 格式化打印普通信息
-func PInfof(format string, v ...interface{}) {
-	print(LevelInfo, fmt.Sprintf(format, v...))
-}
-
-// 格式化打印调试信息
-func PDebugf(format string, v ...interface{}) {
-	print(LevelDebug, fmt.Sprintf(format, v...))
-}
-
-// 打印一个对象
-func PJson(v interface{}) {
-	printJson(LevelInfo, v)
-}
-
-// 自定义等级，打印一个对象
-func PJsonL(level int, v interface{}) {
-	printJson(level, v)
-}
-
-// 一个普通打印
-func PNormal(v ...interface{}) {
-	printNormal(v...)
-}
-
-// 一个普通格式化打印
-func PNormalf(format string, v ...interface{}) {
-	printNormal(fmt.Sprintf(format, v...))
+func (l *Logger) AddAfter(after After) *Logger {
+	l.mx.Lock()
+	defer l.mx.Unlock()
+	if l.After == nil {
+		l.After = after
+		return l
+	}
+	preAfter := l.After
+	nextAfter := after
+	l.After = func(ctx *Ctx) {
+		preAfter(ctx)
+		if !ctx.stop {
+			nextAfter(ctx)
+		}
+	}
+	return l
 }
