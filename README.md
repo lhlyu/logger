@@ -5,6 +5,22 @@
 
 - v3.0.0
 
+##### 安装
+
+- 设置代理
+
+go1.11+     
+
+`set GOPROXY=https://goproxy.cn`
+
+go1.13+ 
+
+`go env -w GOPROXY=https://goproxy.cn,direct`
+
+获取
+
+`go get -v github.com/lhlyu/logger`
+
 ##### 颜色控制
 
 - 代码
@@ -34,9 +50,9 @@ func TestColor(t *testing.T){
 ##### 日志器
 
 ```go
-func TestLog(t *testing.T){
+func TestLog(t *testing.T) {
 	logger.Infoln("春又来 人已去")
-	logger.Infof("%s %s","风烟残","夕阳晚")
+	logger.Infof("%s %s", "风烟残", "夕阳晚")
 	// 设置日志等级: debug info warn error fatal
 	logger.SetLevel("debug")
 	logger.Debugln("樱花开 顷刻散 零乱")
@@ -53,7 +69,7 @@ func TestLog(t *testing.T){
 		Age  int
 	}{
 		Name: "路漫漫",
-		Age: 3,
+		Age:  3,
 	}
 	logger.Infoln(a)
 	logger.SetFormatter(logger.XML)
@@ -63,7 +79,7 @@ func TestLog(t *testing.T){
 	})
 	logger.AddBefore(func(ctx *logger.Ctx) {
 		fmt.Println("this is second before handler")
-		ctx.Stop()  // 后面的前置处理器将不会执行
+		ctx.Stop() // 后面的前置处理器将不会执行
 	})
 	// 这个不会打印，因为在前一个处理器时已经stop了
 	logger.AddBefore(func(ctx *logger.Ctx) {
@@ -71,7 +87,7 @@ func TestLog(t *testing.T){
 	})
 	// 添加后置处理器,日志打印后处理
 	logger.AddAfter(func(ctx *logger.Ctx) {
-		if ctx.Err != nil{
+		if ctx.Err != nil {
 			fmt.Println(ctx.Err.Error())
 		}
 	})
@@ -82,8 +98,8 @@ func TestLog(t *testing.T){
 	lg := logger.New()
 	// 设置输出流
 	lg.SetOutput(os.Stderr)
-	entry := logger.NewEntry(lg)
-	entry.Fatalln("渡忘川")
+	lg.Fatalln("渡忘川")
+	lg.WithContext(context.Background())
 }
 ```
 

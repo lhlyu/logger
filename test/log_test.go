@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"github.com/lhlyu/logger"
 	"os"
@@ -55,6 +56,6 @@ func TestLog(t *testing.T) {
 	lg := logger.New()
 	// 设置输出流
 	lg.SetOutput(os.Stderr)
-	entry := logger.NewEntry(lg)
-	entry.Fatalln("渡忘川")
+	lg.Fatalln("渡忘川")
+	lg.WithContext(context.Background())
 }

@@ -3,110 +3,95 @@ package logger
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"time"
 )
 
-type Entry struct {
-	logger *Logger
-	lg     *log.Logger
+func (l *Logger) Fatalf(format string, v ...interface{}) {
+	l.logx(FatalLevel, fmt.Sprintf(format, v...))
 }
 
-func NewEntry(logger *Logger) *Entry {
-	lg := log.New(logger.Out, "", 0)
-	return &Entry{
-		logger: logger,
-		lg:     lg,
-	}
+func (l *Logger) Fatalln(v ...interface{}) {
+	l.logx(FatalLevel, v...)
 }
 
-func (entry *Entry) Fatalf(format string, v ...interface{}) {
-	entry.logx(FatalLevel, fmt.Sprintf(format, v...))
+func (l *Logger) Errorf(format string, v ...interface{}) {
+	l.logx(ErrorLevel, fmt.Sprintf(format, v...))
 }
 
-func (entry *Entry) Fatalln(v ...interface{}) {
-	entry.logx(FatalLevel, v...)
+func (l *Logger) Errorln(v ...interface{}) {
+	l.logx(ErrorLevel, v...)
 }
 
-func (entry *Entry) Errorf(format string, v ...interface{}) {
-	entry.logx(ErrorLevel, fmt.Sprintf(format, v...))
+func (l *Logger) Warnf(format string, v ...interface{}) {
+	l.logx(WarnLevel, fmt.Sprintf(format, v...))
 }
 
-func (entry *Entry) Errorln(v ...interface{}) {
-	entry.logx(ErrorLevel, v...)
+func (l *Logger) Warnln(v ...interface{}) {
+	l.logx(WarnLevel, v...)
 }
 
-func (entry *Entry) Warnf(format string, v ...interface{}) {
-	entry.logx(WarnLevel, fmt.Sprintf(format, v...))
+func (l *Logger) Infof(format string, v ...interface{}) {
+	l.logx(InfoLevl, fmt.Sprintf(format, v...))
 }
 
-func (entry *Entry) Warnln(v ...interface{}) {
-	entry.logx(WarnLevel, v...)
+func (l *Logger) Infoln(v ...interface{}) {
+	l.logx(InfoLevl, v...)
 }
 
-func (entry *Entry) Infof(format string, v ...interface{}) {
-	entry.logx(InfoLevl, fmt.Sprintf(format, v...))
+func (l *Logger) Debugf(format string, v ...interface{}) {
+	l.logx(DebugLevl, fmt.Sprintf(format, v...))
 }
 
-func (entry *Entry) Infoln(v ...interface{}) {
-	entry.logx(InfoLevl, v...)
+func (l *Logger) Debugln(v ...interface{}) {
+	l.logx(DebugLevl, v...)
 }
 
-func (entry *Entry) Debugf(format string, v ...interface{}) {
-	entry.logx(DebugLevl, fmt.Sprintf(format, v...))
+func (l *Logger) Printf(format string, v ...interface{}) {
+	l.logx(DisableLevel, fmt.Sprintf(format, v...))
 }
 
-func (entry *Entry) Debugln(v ...interface{}) {
-	entry.logx(DebugLevl, v...)
+func (l *Logger) Println(v ...interface{}) {
+	l.logx(DisableLevel, v...)
 }
 
-func (entry *Entry) Printf(format string, v ...interface{}) {
-	entry.logx(DisableLevel, fmt.Sprintf(format, v...))
-}
-
-func (entry *Entry) Println(v ...interface{}) {
-	entry.logx(DisableLevel, v...)
-}
-
-func (entry *Entry) logx(level Level, v ...interface{}) {
-	if entry.logger.Level < level || len(v) == 0 {
+func (l *Logger) logx(level Level, v ...interface{}) {
+	if l.Level < level || len(v) == 0 {
 		return
 	}
-
-	ctx := newCtx(entry.logger, v)
-	if entry.logger.Before != nil {
-		entry.logger.Before(ctx)
+	ctx := newCtx(l, v)
+	if l.Before != nil {
+		l.Before(ctx)
 	}
-	if entry.logger.After != nil {
-		defer entry.logger.After(ctx)
+	if l.After != nil {
+		defer l.After(ctx)
 	}
 
 	buf := bytes.Buffer{}
-	if entry.logger.Color.ColorMode != Normal {
-		if isTerminal(entry.logger.Out) {
-			meta := entry.logger.Color.parseMeta(level)
+	if l.Color.ColorMode != Normal {
+		if isTerminal(l.Out) {
+			meta := l.Color.parseMeta(level)
 			buf.WriteString(meta.cl(meta.LvName))
 		}
 	}
-	if entry.logger.TimeFormat != "" {
-		buf.WriteString(time.Now().Format(entry.logger.TimeFormat))
+	if l.TimeFormat != "" {
+		buf.WriteString(time.Now().Format(l.TimeFormat))
 	}
 	var (
 		byts []byte
 		err  error
 	)
 	if len(v) > 1 {
-		byts, err = entry.logger.Formatter.Format(v)
+		byts, err = l.Formatter.Format(v)
 	} else {
-		byts, err = entry.logger.Formatter.Format(v[0])
+		byts, err = l.Formatter.Format(v[0])
 	}
 	if err != nil {
 		ctx.Err = err
 		return
 	}
-	if entry.logger.Formatter.NewLine() {
+	if l.Formatter.NewLine() {
 		buf.WriteString("\n")
 	}
 	buf.Write(byts)
-	entry.lg.Output(4, buf.String())
+	l.lg.Output(4, buf.String())
 }

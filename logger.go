@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"io"
+	"log"
 	"os"
 	"sync"
 )
@@ -26,6 +27,7 @@ type Logger struct {
 	Color      *Color    // 颜色控制
 	Context    context.Context
 	mx         sync.Mutex
+	lg         *log.Logger
 }
 
 func New() *Logger {
@@ -35,11 +37,8 @@ func New() *Logger {
 		Level:      InfoLevl,
 		TimeFormat: default_time_format,
 		Color:      NewColor(),
+		lg:         log.New(os.Stdout, "", 0),
 	}
-}
-
-func (l *Logger) newEntry() *Entry {
-	return NewEntry(l)
 }
 
 func (l *Logger) SetOutput(output io.Writer) *Logger {
