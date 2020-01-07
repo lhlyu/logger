@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"github.com/lhlyu/logger/color"
 	"io"
 	"log"
 	"os"
@@ -18,13 +19,13 @@ type Before func(ctx *Ctx)
 type After func(ctx *Ctx)
 
 type Logger struct {
-	Out        io.Writer // 输出流
-	Before     Before    // 前置处理器
-	After      After     // 后置处理器
-	Formatter  Formatter // 内容格式化
-	TimeFormat string    // 时间格式化
-	Level      Level     // 等级
-	Color      *Color    // 颜色控制
+	Out        io.Writer    // 输出流
+	Before     Before       // 前置处理器
+	After      After        // 后置处理器
+	Formatter  Formatter    // 内容格式化
+	TimeFormat string       // 时间格式化
+	Level      Level        // 等级
+	Color      *color.Color // 颜色控制
 	Context    context.Context
 	mx         sync.Mutex
 	lg         *log.Logger
@@ -36,7 +37,7 @@ func New() *Logger {
 		Formatter:  new(textFormatter),
 		Level:      InfoLevl,
 		TimeFormat: default_time_format,
-		Color:      NewColor(),
+		Color:      color.NewColor(),
 		lg:         log.New(os.Stdout, "", 0),
 	}
 }
@@ -76,11 +77,11 @@ func (l *Logger) WithContext(context context.Context) *Logger {
 	return l
 }
 
-func (l *Logger) SetColorMode(colorMode ColorMode) *Logger {
+func (l *Logger) SetColorMode(colorMode color.ColorMode) *Logger {
 	l.mx.Lock()
 	defer l.mx.Unlock()
 	if l.Color == nil {
-		l.Color = &Color{}
+		l.Color = &color.Color{}
 	}
 	l.Color.ColorMode = colorMode
 	return l

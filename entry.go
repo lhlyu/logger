@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"fmt"
+	"github.com/lhlyu/logger/color"
 	"time"
 )
 
@@ -67,9 +68,9 @@ func (l *Logger) logx(level Level, v ...interface{}) {
 	}
 
 	buf := bytes.Buffer{}
-	if l.Color.ColorMode != Normal {
+	if l.Color.ColorMode != color.Normal {
 		if isTerminal(l.Out) {
-			meta := l.Color.parseMeta(level)
+			meta := parseMeta(l.Color, level)
 			buf.WriteString(meta.cl(meta.LvName))
 		}
 	}
@@ -93,5 +94,5 @@ func (l *Logger) logx(level Level, v ...interface{}) {
 		buf.WriteString("\n")
 	}
 	buf.Write(byts)
-	l.lg.Output(4, buf.String())
+	l.lg.Output(2, buf.String())
 }
