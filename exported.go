@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	"github.com/lhlyu/logger/color"
 	"io"
 )
 
@@ -33,7 +34,7 @@ func WithContext(context context.Context) *Logger {
 	return _log
 }
 
-func SetColorMode(colorMode ColorMode) *Logger {
+func SetColorMode(colorMode color.ColorMode) *Logger {
 	_log.SetColorMode(colorMode)
 	return _log
 }

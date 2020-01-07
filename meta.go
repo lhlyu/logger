@@ -1,11 +1,13 @@
 package logger
 
+import "github.com/lhlyu/logger/color"
+
 type levelMeta struct {
 	LvName string
 	cl     func(text string) string
 }
 
-func (c *Color) parseMeta(lv Level) *levelMeta {
+func parseMeta(c *color.Color, lv Level) *levelMeta {
 	switch lv {
 	case FatalLevel:
 		return &levelMeta{
