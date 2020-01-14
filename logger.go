@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-const version = "v3.0.0"
+const version = "v3.1.0"
 
 const (
 	default_time_format = "2006-01-02 15:04:05 ▶ "
