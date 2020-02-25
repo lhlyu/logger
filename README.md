@@ -3,7 +3,7 @@
 
 ### 当前版本
 
-- v3.0.0
+- v3.2.0
 
 ##### 安装
 
@@ -19,7 +19,7 @@ go1.13+
 
 获取
 
-`go get -v github.com/lhlyu/logger/v3`
+`go get -v github.com/lhlyu/logger`
 
 ##### 颜色控制
 
