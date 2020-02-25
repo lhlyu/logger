@@ -1,6 +1,6 @@
 package logger
 
-import "github.com/lhlyu/logger/color"
+import "github.com/lhlyu/logger/v3/color"
 
 type levelMeta struct {
 	LvName string

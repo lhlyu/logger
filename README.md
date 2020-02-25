@@ -19,7 +19,7 @@ go1.13+
 
 获取
 
-`go get -v github.com/lhlyu/logger`
+`go get -v github.com/lhlyu/logger/v3`
 
 ##### 颜色控制
 

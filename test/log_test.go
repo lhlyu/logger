@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/lhlyu/logger"
+	"github.com/lhlyu/logger/v3"
 	"os"
 	"testing"
 )

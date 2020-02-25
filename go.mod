@@ -1,4 +1,4 @@
-module github.com/lhlyu/logger
+module github.com/lhlyu/logger/v3
 
 go 1.12
 

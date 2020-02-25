@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/lhlyu/logger/color"
+	"github.com/lhlyu/logger/v3/color"
 	"testing"
 )
 

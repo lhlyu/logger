@@ -3,7 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
-	"github.com/lhlyu/logger/color"
+	"github.com/lhlyu/logger/v3/color"
 	"io"
 )
 

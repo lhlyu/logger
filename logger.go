@@ -2,14 +2,14 @@ package logger
 
 import (
 	"context"
-	"github.com/lhlyu/logger/color"
+	"github.com/lhlyu/logger/v3/color"
 	"io"
 	"log"
 	"os"
 	"sync"
 )
 
-const version = "v3.1.0"
+const version = "v3.2.0"
 
 const (
 	default_time_format = "2006-01-02 15:04:05 ▶ "
